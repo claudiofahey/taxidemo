@@ -1,6 +1,7 @@
 .idea
 .project
 .gradle
+*.csv
 *.iml
 *.log
 out

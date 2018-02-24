@@ -1,90 +1,77 @@
 #!/usr/bin/env python
 #
-# Simulate brain sensor data and send to the REST gateway.
+# Read CSV data and send to the REST gateway.
 #
 # Written by: claudio.fahey@dell.com
 #
 
 from __future__ import division
 from __future__ import print_function
-import random
-from math import sin, pi
 from time import sleep, time
 import requests
 from optparse import OptionParser
-from multiprocessing import Process
+from datetime import datetime
 
-def sine_wave_generator(att_low, att_high, att_period_ms, att_offset_ms, report_period_sec, device_id, t0_ms):
-    t = t0_ms
-    while True:
-        # att_normalized will be between 0 and 1
-        att_normalized = 0.5 * sin(2.0 * pi * (t - att_offset_ms) / att_period_ms) + 0.5
-        att = int((att_high - att_low) * att_normalized + att_low)
-        assert att >= 0 and att <= 100
-        data = {'timestamp': t, 'device_id': device_id, 'att': att, 'ap': 1}
-        yield data
-        t += 1000
-
-def playback_recorded_file_generator(filename, device_id, t0_ms):
+def playback_recorded_file_generator(filename):
     with open(filename, 'r') as f:
+        have_header = False
+        first_timestamp_ms = 0.0
         for line in f:
-            delta_t, att = line.split(',')
-            delta_t = int(delta_t)
-            att = float(att)
-            t = t0_ms + delta_t
-            data = {'timestamp': t, 'device_id': device_id, 'att': att, 'ap': 1}
-            yield data
+            line = line.rstrip('\n')
+            if not have_header:
+                header_cols = line.split(',')
+                have_header = True
+            else:
+                fields = line.split(',')
+                data = {}
+                for i, header_col in enumerate(header_cols):
+                    data[header_col] = fields[i]
+                timestamp_str = data['tpep_pickup_datetime']
+                dt = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
+                timestamp_ms = int(dt.timestamp() * 1000)
+                if first_timestamp_ms <= 0.0:
+                    first_timestamp_ms = timestamp_ms
+                delta_ms = timestamp_ms - first_timestamp_ms
+                data['delta_ms'] = delta_ms
+                yield data
 
-def single_generator_process(options, device_id):
+def single_generator_process(options):
     url = options.gateway_url
     t0_ms = int(time() * 1000)
-
-    if options.recorded:
-        filename = 'cleaned_data_%s.csv' % device_id
-        print('%s: filename=%s' % (device_id, filename))
-        generator = playback_recorded_file_generator(filename, device_id, t0_ms)
-    else:
-        # Create random parameters for this device.
-        att_low = random.uniform(0.0, 50.0)
-        att_high = random.uniform(50.0, 100.0)
-        att_period_ms = random.uniform(30000.0, 120000.0)
-        att_offset_ms = random.uniform(0.0, 1000000.0)
-        report_period_sec = random.uniform(0.75, 1.5)
-        print('%s: att_low=%f, att_high=%f, att_period_ms=%f, att_offset_ms=%f, report_period_sec=%f' %
-              (device_id, att_low, att_high, att_period_ms, att_offset_ms, report_period_sec))
-        generator = sine_wave_generator(att_low, att_high, att_period_ms, att_offset_ms, report_period_sec, device_id, t0_ms)
+    filename = options.filename
+    print('filename=%s' % (filename))
+    generator = playback_recorded_file_generator(filename)
 
     for data in generator:
         try:
-            t = data['timestamp']
-            sleep_sec = t/1000.0 - time()
+            print('generated: ' + str(data))
+            data_delta_ms = data['delta_ms']
+            speed_up = 10.0
+            data_timestamp_ms = t0_ms + data_delta_ms/speed_up
+            data['timestamp'] = data_timestamp_ms
+            sleep_sec = data_timestamp_ms/1000.0 - time()
             if sleep_sec > 0.0:
+                print('sleeping for %s sec' % sleep_sec)
                 sleep(sleep_sec)
-            print(device_id + ': ' + str(data))
-            response = requests.post(url, json=data)
-            print(device_id + ': ' + str(response))
-            response.raise_for_status()
+            print(str(data))
+            duplicate_messages = 3
+            for i in range(duplicate_messages):
+                response = requests.post(url, json=data)
+                print(str(response))
+                response.raise_for_status()
         except Exception as e:
-            print(device_id + ': ERROR: ' + str(e))
+            print('ERROR: ' + str(e))
             pass
 
 def main():
     parser = OptionParser()
     parser.add_option('-g', '--gateway-url', default='http://localhost:3000/data',
         action='store', dest='gateway_url', help='URL for gateway')
-    parser.add_option('-n', '--num-devices', type='int', default=1,
-        action='store', dest='num_devices', help='Number of devices to simulate')
-    parser.add_option('-r', '--recorded', default=False,
-                      action='store_true', dest='recorded')
+    parser.add_option('-f', '--file',
+        action='store', dest='filename', help='Input file')
     options, args = parser.parse_args()
 
-    device_ids = ['%04d' % (i + 1) for i in range(options.num_devices)]
-    while True:
-        processes = [
-            Process(target=single_generator_process, args=(options, device_id))
-            for device_id in device_ids]
-        [p.start() for p in processes]
-        [p.join() for p in processes]
+    single_generator_process(options)
 
 if __name__ == '__main__':
     main()

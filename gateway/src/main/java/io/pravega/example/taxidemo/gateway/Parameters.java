@@ -8,7 +8,7 @@ class Parameters {
     }
 
     public static String getScope() {
-        return getEnvVar("PRAVEGA_SCOPE", "taxidemo");
+        return getEnvVar("PRAVEGA_SCOPE", "taxidemo5");
     }
 
     public static String getStreamName() {
@@ -16,7 +16,7 @@ class Parameters {
     }
 
     public static URI getGatewayURI() {
-        return URI.create(getEnvVar("GATEWAY_URI", "http://localhost:8280/"));
+        return URI.create(getEnvVar("GATEWAY_URI", "http://localhost:3000/"));
     }
 
     private static String getEnvVar(String name, String defaultValue) {

@@ -40,9 +40,9 @@ class Main
         String scope = Parameters.getScope();
         streamManager.createScope(scope);
         String streamName = Parameters.getStreamName();
-        int targetKBps = 1000;
+        int targetKBps = 5;
         int scaleFactor = 2;
-        int minNumSegments = 1;
+        int minNumSegments = 2;
         StreamConfiguration streamConfig = StreamConfiguration.builder()
                 .scalingPolicy(ScalingPolicy.byDataRate(targetKBps, scaleFactor, minNumSegments))
                 .build();
