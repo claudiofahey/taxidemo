@@ -6,7 +6,7 @@ group = "io.pravega.example.taxidemo"
 version = samplesVersion
 archivesBaseName = "taxidemo-gateway"
 description = "gateway-service"
-mainClassName = "io.pravega.example.taxidemo"
+mainClassName = "io.pravega.example.taxidemo.gateway.Main"
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 

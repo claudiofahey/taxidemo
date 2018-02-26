@@ -26,7 +26,7 @@ def playback_recorded_file_generator(filename):
                 data = {}
                 for i, header_col in enumerate(header_cols):
                     data[header_col] = fields[i]
-                timestamp_str = data['tpep_pickup_datetime']
+                timestamp_str = data['tpep_dropoff_datetime']
                 dt = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
                 timestamp_ms = int(dt.timestamp() * 1000)
                 if first_timestamp_ms <= 0.0:
@@ -45,14 +45,17 @@ def single_generator_process(options):
     for data in generator:
         try:
             print('generated: ' + str(data))
+            data['routing_key'] = '%0.1f,%0.1f' % (float(data['dropoff_latitude']), float(data['dropoff_longitude']))
             data_delta_ms = data['delta_ms']
             speed_up = 10.0
             data_timestamp_ms = t0_ms + data_delta_ms/speed_up
-            data['timestamp'] = data_timestamp_ms
+            data['timestamp'] = int(data_timestamp_ms)
             sleep_sec = data_timestamp_ms/1000.0 - time()
             if sleep_sec > 0.0:
                 print('sleeping for %s sec' % sleep_sec)
                 sleep(sleep_sec)
+            elif sleep_sec < -10.0:
+                raise Exception('Dropping event that is too old; age=%0.3f sec' % (-sleep_sec))
             print(str(data))
             duplicate_messages = 3
             for i in range(duplicate_messages):
@@ -71,7 +74,8 @@ def main():
         action='store', dest='filename', help='Input file')
     options, args = parser.parse_args()
 
-    single_generator_process(options)
+    while True:
+        single_generator_process(options)
 
 if __name__ == '__main__':
     main()

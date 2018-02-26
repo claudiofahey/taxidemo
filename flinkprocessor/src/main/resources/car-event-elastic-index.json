@@ -1,0 +1,17 @@
+{
+  "mappings": {
+    "@@type@@": {
+      "properties": {
+        "location": {
+          "type": "geo_point"
+        },
+        "timestamp": {
+          "type": "date"
+        },
+        "carId": {
+          "type": "text"
+        }
+      }
+    }
+  }
+}

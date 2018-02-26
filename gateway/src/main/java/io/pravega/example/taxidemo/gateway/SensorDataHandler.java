@@ -19,12 +19,16 @@ public class SensorDataHandler {
     @Consumes({"application/json"})
     @Produces({"application/json"})
     public String postData(@Context Request request, String data) throws Exception {
-        String remoteAddr = request.getRemoteAddr();
-
+        // Deserialize the JSON message.
         ObjectMapper objectMapper = new ObjectMapper();
-        ObjectNode message = objectMapper.createObjectNode();
+        ObjectNode message = (ObjectNode) objectMapper.readTree(data);
 
-        String routingKeyAttributeName = "";
+        // Add the remote IP address to JSON message.
+        String remoteAddr = request.getRemoteAddr();
+        message.put("remote_addr", remoteAddr);
+
+        // Get or calculate the routing key.
+        String routingKeyAttributeName = "routing_key";
         String routingKey;
         if (routingKeyAttributeName.isEmpty()) {
             routingKey = Double.toString(Math.random());
@@ -33,13 +37,13 @@ public class SensorDataHandler {
             routingKey = objectMapper.writeValueAsString(routingKeyNode);
         }
 
-        message.put("data", data);
-        message.put("remoteAddr", remoteAddr);
+        // Write the message to Pravega.
         Log.info("routingKey={}, message={}", routingKey, message);
-
         final CompletableFuture writeFuture = Main.getWriter().writeEvent(routingKey, message);
+
+        // Wait for acknowledgement that the event was durably persisted.
 //        writeFuture.get();
-//        Log.info("done writing");
+
         return "{}";
     }
 }
