@@ -17,8 +17,8 @@ public class ApplicationMain {
 
         String runMode = appConfiguration.getRunMode();
         switch (runMode) {
-            case AppConfiguration.RUN_MODE_AGGREGATE: {
-                AggregateJob job = new AggregateJob(appConfiguration);
+            case AppConfiguration.RUN_MODE_RAW_DATA_TO_ELASTICSEARCH: {
+                RawDataToElasticsearchJob job = new RawDataToElasticsearchJob(appConfiguration);
                 job.run();
                 break;
             }
@@ -33,7 +33,7 @@ public class ApplicationMain {
         ParameterTool params = ParameterTool.fromArgs(args);
         log.info("Parameter Tool: {}", params.toMap());
 
-        appConfiguration.setRunMode(params.get("runMode", AppConfiguration.RUN_MODE_AGGREGATE));
+        appConfiguration.setRunMode(params.get("runMode", AppConfiguration.RUN_MODE_RAW_DATA_TO_ELASTICSEARCH));
         appConfiguration.setParallelism(params.getInt("job.parallelism", 1));
         appConfiguration.setCheckpointInterval(params.getLong("job.checkpointInterval", 10000));     // milliseconds
         appConfiguration.setDisableCheckpoint(params.getBoolean("job.disableCheckpoint", false));

@@ -17,7 +17,7 @@ public class AppConfiguration {
     private boolean disableOperatorChaining;
     private boolean enableRebalance;
 
-    public static final String RUN_MODE_AGGREGATE = "aggregate";
+    public static final String RUN_MODE_RAW_DATA_TO_ELASTICSEARCH = "rawdata-to-elasticsearch";
 
     public PravegaArgs getPravegaArgs() {
         return pravegaArgs;

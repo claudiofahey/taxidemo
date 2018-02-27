@@ -2,14 +2,20 @@
   "mappings": {
     "@@type@@": {
       "properties": {
-        "location": {
+        "dropoff_location": {
+          "type": "geo_point"
+        },
+        "pickup_location": {
           "type": "geo_point"
         },
         "timestamp": {
           "type": "date"
         },
-        "carId": {
-          "type": "text"
+        "tpep_dropoff_timestamp_ms": {
+          "type": "date"
+        },
+        "tpep_pickup_timestamp_ms": {
+          "type": "date"
         }
       }
     }

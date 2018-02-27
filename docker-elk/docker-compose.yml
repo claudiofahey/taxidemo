@@ -1,0 +1,40 @@
+version: '2'
+
+services:
+
+  elasticsearch:
+    build:
+      context: elasticsearch/
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xmx2048m -Xms2048m"
+      discovery.type: single-node
+    volumes:
+#      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - esdata1:/usr/share/elasticsearch/data
+    networks:
+      - elk
+    restart: unless-stopped
+
+  kibana:
+    build:
+      context: kibana/
+#    volumes:
+#      - ./kibana/config/:/usr/share/kibana/config:ro
+    ports:
+      - "5601:5601"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+
+volumes:
+  esdata1:
+    driver: local
+
+networks:
+  elk:
+    driver: bridge

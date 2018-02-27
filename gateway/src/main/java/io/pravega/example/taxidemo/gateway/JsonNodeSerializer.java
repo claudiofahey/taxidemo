@@ -10,9 +10,18 @@ import java.nio.ByteBuffer;
 
 public class JsonNodeSerializer implements Serializer<JsonNode>, Serializable {
 
+    private final ObjectMapper objectMapper;
+
+    public JsonNodeSerializer() {
+        this.objectMapper = new ObjectMapper();
+    }
+
+    public JsonNodeSerializer(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
     @Override
     public ByteBuffer serialize(JsonNode value) {
-        ObjectMapper objectMapper = new ObjectMapper();
         try {
             byte[] result = objectMapper.writeValueAsBytes(value);
             return ByteBuffer.wrap(result);
@@ -26,7 +35,6 @@ public class JsonNodeSerializer implements Serializer<JsonNode>, Serializable {
         ByteArrayInputStream bin = new ByteArrayInputStream(serializedValue.array(),
                 serializedValue.position(),
                 serializedValue.remaining());
-        ObjectMapper objectMapper = new ObjectMapper();
         try {
             return objectMapper.readTree(bin);
         } catch (IOException e) {

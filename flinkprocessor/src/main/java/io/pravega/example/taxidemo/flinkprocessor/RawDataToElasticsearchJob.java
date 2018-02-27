@@ -1,24 +1,19 @@
 package io.pravega.example.taxidemo.flinkprocessor;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.pravega.connectors.flink.FlinkPravegaReader;
-import io.pravega.connectors.flink.PravegaEventRouter;
-import io.pravega.connectors.flink.serialization.JsonDeserializationSchema;
+import io.pravega.connectors.flink.serialization.UTF8StringDeserializationSchema;
 import io.pravega.connectors.flink.util.StreamId;
-import io.pravega.shaded.com.google.gson.Gson;
-import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.flink.streaming.connectors.elasticsearch.ElasticsearchSinkFunction;
 import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
 import org.apache.flink.streaming.connectors.elasticsearch5.ElasticsearchSink;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.Requests;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -27,21 +22,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AggregateJob extends AbstractJob {
+public class RawDataToElasticsearchJob extends AbstractJob {
 
-    private static Logger log = LoggerFactory.getLogger(AggregateJob.class);
+    private static Logger log = LoggerFactory.getLogger(RawDataToElasticsearchJob.class);
 
-    public AggregateJob(AppConfiguration appConfiguration) {
+    public RawDataToElasticsearchJob(AppConfiguration appConfiguration) {
         super(appConfiguration);
     }
 
     public void run() throws Exception {
 
-        final String jobName = "predict";
+        final String jobName = AppConfiguration.RUN_MODE_RAW_DATA_TO_ELASTICSEARCH;
+
+        if (appConfiguration.getElasticSearch().isSinkResults()) {
+            new ElasticSetup(appConfiguration.getElasticSearch()).run();
+        }
 
         StreamId inputStreamId = pravegaArgs.inputStream;
         log.info("inputStreamId={}", inputStreamId);
-        createStream(inputStreamId);
+//        createStream(inputStreamId);
 
         // Configure the Flink job environment
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -61,42 +60,29 @@ public class AggregateJob extends AbstractJob {
         log.info("Parallelism={}, MaxParallelism={}", env.getParallelism(), env.getMaxParallelism());
 
         long startTime = 0;
-        FlinkPravegaReader<RawEvent> flinkPravegaReader = flinkPravegaParams.newReader(
+        FlinkPravegaReader<String> flinkPravegaReader = flinkPravegaParams.newReader(
                 inputStreamId,
                 startTime,
-                new JsonDeserializationSchema<>(RawEvent.class));
+                new UTF8StringDeserializationSchema());
 
-        DataStream<RawEvent> rawEvents = env
+        DataStream<String> events = env
                 .addSource(flinkPravegaReader)
-                .name("RawEventReader");
+                .name("EventReader");
 
         if (appConfiguration.isEnableRebalance()) {
-            rawEvents = rawEvents.rebalance();
+            events = events.rebalance();
             log.info("Rebalancing events");
         }
 
-        rawEvents.printToErr();
+        events.printToErr();
 
         if (appConfiguration.getElasticSearch().isSinkResults()) {
-            ElasticsearchSink<RawEventES> elasticSink = sinkToElasticSearch();
-            rawEvents
-                .map(new ElasticSearchMapper())
-                .addSink(elasticSink).name("Write to ElasticSearch");
+            ElasticsearchSink<String> elasticSink = sinkToElasticSearch();
+            events.addSink(elasticSink).name("Write to ElasticSearch");
         }
 
         log.info("Executing {} job", jobName);
         env.execute(jobName);
-    }
-
-    public static class ElasticSearchMapper implements MapFunction<RawEvent, RawEventES> {
-        @Override
-        public RawEventES map(RawEvent event) throws Exception {
-            RawEventES rawEventES = new RawEventES();
-            rawEventES.timestamp = event.timestamp;
-            rawEventES.dropoffLatitude = event.dropoffLatitude;
-            rawEventES.dropoffLongitude = event.dropoffLongitude;
-            return rawEventES;
-        }
     }
 
     private ElasticsearchSink sinkToElasticSearch() throws Exception {
@@ -117,7 +103,7 @@ public class AggregateJob extends AbstractJob {
         return new ElasticsearchSink(config, transports, new ResultSinkFunction(index, type, appConfiguration.getElasticSearch()));
     }
 
-    public static class ResultSinkFunction implements ElasticsearchSinkFunction<RawEventES> {
+    public static class ResultSinkFunction implements ElasticsearchSinkFunction<String> {
         private static final Logger LOG = LoggerFactory.getLogger(ResultSinkFunction.class);
 
         private final String index;
@@ -129,19 +115,16 @@ public class AggregateJob extends AbstractJob {
         }
 
         @Override
-        public void process(RawEventES event, RuntimeContext ctx, RequestIndexer indexer) {
+        public void process(String event, RuntimeContext ctx, RequestIndexer indexer) {
             indexer.add(createIndexRequest(event));
         }
 
-        private IndexRequest createIndexRequest(RawEventES event) {
-            Gson gson = new Gson();
-            String resultAsJson = gson.toJson(event);
-//            String id = String.format("%s-%d", event.);
+        private IndexRequest createIndexRequest(String event) {
             return Requests.indexRequest()
-                    .index(index)
-                    .type(type)
-//                    .id(id)
-                    .source(resultAsJson);
+                .index(index)
+                .type(type)
+//                .id(id)
+                .source(event);
         }
     }
 }

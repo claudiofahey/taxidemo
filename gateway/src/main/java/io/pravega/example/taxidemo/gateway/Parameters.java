@@ -8,7 +8,7 @@ class Parameters {
     }
 
     public static String getScope() {
-        return getEnvVar("PRAVEGA_SCOPE", "taxidemo6");
+        return getEnvVar("PRAVEGA_SCOPE", "taxidemo");
     }
 
     public static String getStreamName() {
