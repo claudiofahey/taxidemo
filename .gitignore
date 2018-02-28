@@ -1,8 +1,12 @@
 .idea
+.ipynb_checkpoints/
 .project
 .gradle
+spark-warehouse/
 *.csv
 *.iml
+*.json
+*.ndjson
 *.log
 out
 

@@ -28,7 +28,7 @@ public class SensorDataHandler {
         message.put("remote_addr", remoteAddr);
 
         // Get or calculate the routing key.
-        String routingKeyAttributeName = "routing_key";
+        String routingKeyAttributeName = "trip_id";
         String routingKey;
         if (routingKeyAttributeName.isEmpty()) {
             routingKey = Double.toString(Math.random());

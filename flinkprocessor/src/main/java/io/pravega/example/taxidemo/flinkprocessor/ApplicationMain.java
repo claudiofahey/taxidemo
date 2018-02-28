@@ -44,7 +44,8 @@ public class ApplicationMain {
         appConfiguration.setFlinkPravegaParams(flinkPravegaParams);
 
         String scope = params.get("scope", "taxidemo");
-        appConfiguration.getPravegaArgs().inputStream = flinkPravegaParams.getStreamFromParam("input.stream", scope + "/rawdata");
+        appConfiguration.getPravegaArgs().inputStream =
+                flinkPravegaParams.getStreamFromParam("input.stream", scope + "/rawdata");
 
         appConfiguration.getPravegaArgs().targetRate = params.getInt("scaling.targetRate", 100000);  // Data rate in KB/sec
         appConfiguration.getPravegaArgs().scaleFactor = params.getInt("scaling.scaleFactor", 2);
@@ -65,10 +66,10 @@ public class ApplicationMain {
         elasticSearch.setCluster(params.get("elastic-cluster", "elastic"));
 
         // elastic-index: The name of the Elastic index to sink to.
-        elasticSearch.setIndex(params.get("elastic-index", "car-event"));
+        elasticSearch.setIndex(params.get("elastic-index", "taxidemo-rawdata"));
 
         // elastic-type: The name of the type to sink.
-        elasticSearch.setType(params.get("elastic-type", "alerts"));
+        elasticSearch.setType(params.get("elastic-type", "event"));
     }
 
     private static void printUsage() {
