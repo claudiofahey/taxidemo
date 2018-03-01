@@ -49,7 +49,7 @@ public class ElasticSetup {
         }
 
         LOG.info("Creating elastic Search Index");
-        String indexBody = getTemplate("car-event-elastic-index.json", Collections.singletonMap("type", elasticConfig.getType()));
+        String indexBody = getTemplate("taxidemo-rawdata-elastic-index.json", Collections.singletonMap("type", elasticConfig.getType()));
         try {
             client.admin().indices().create(Requests.createIndexRequest(elasticConfig.getIndex()).source(indexBody)).actionGet();
         } catch (ResourceAlreadyExistsException e) {

@@ -1,0 +1,41 @@
+{
+  "mappings": {
+    "@@type@@": {
+      "properties": {
+        "event_type": {
+          "type": "keyword"
+        },
+        "location": {
+          "type": "geo_point"
+        },
+        "original_timestamp": {
+          "type": "date"
+        },
+        "passenger_count": {
+          "type": "byte"
+        },
+        "remote_addr": {
+          "type": "keyword"
+        },
+        "timestamp": {
+          "type": "date"
+        },
+        "total_amount": {
+          "type": "float"
+        },
+        "trip_distance": {
+          "type": "float"
+        },
+        "trip_duration_minutes": {
+          "type": "float"
+        },
+        "trip_fraction": {
+          "type": "float"
+        },
+        "trip_id": {
+          "type": "keyword"
+        }
+      }
+    }
+  }
+}
