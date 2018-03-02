@@ -117,6 +117,14 @@ This section can be skipped if you are using Nautilus.
 
   ```--controller tcp://pravega_controller_ip:9091 --elastic-sink true --elastic-host elastic_ip```
 
+### Elasticsearch and Kibana
+
+- `cd docker-elk ; docker-compose up -d`
+
+- Open Kibana.
+
+- Import Kibana objects from `docker-elk/kibana-export.json`.
+
 
 # References
 

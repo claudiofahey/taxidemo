@@ -1,0 +1,114 @@
+[
+  {
+    "_id": "146ead10-1ceb-11e8-a01c-2746037b6b5f",
+    "_type": "dashboard",
+    "_source": {
+      "title": "Taxi Demo Dashboard",
+      "hits": 0,
+      "description": "",
+      "panelsJSON": "[{\"size_x\":8,\"size_y\":6,\"panelIndex\":1,\"type\":\"visualization\",\"id\":\"da086b70-1cea-11e8-a01c-2746037b6b5f\",\"col\":1,\"row\":1},{\"size_x\":3,\"size_y\":2,\"panelIndex\":2,\"type\":\"visualization\",\"id\":\"bc4f2ab0-1cea-11e8-a01c-2746037b6b5f\",\"col\":9,\"row\":1}]",
+      "optionsJSON": "{\"darkTheme\":false}",
+      "uiStateJSON": "{\"P-2\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}},\"P-1\":{\"mapCenter\":[40.74309523218185,-73.84529113769531],\"mapZoom\":10}}",
+      "version": 1,
+      "timeRestore": false,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"filter\":[{\"query\":{\"match_all\":{}}}],\"highlightAll\":true,\"version\":true}"
+      }
+    }
+  },
+  {
+    "_id": "760571e0-1be1-11e8-a01c-2746037b6b5f",
+    "_type": "dashboard",
+    "_source": {
+      "title": "Taxi Demo Pickup and Dropoff Events",
+      "hits": 0,
+      "description": "",
+      "panelsJSON": "[{\"size_x\":6,\"size_y\":5,\"panelIndex\":1,\"type\":\"visualization\",\"id\":\"a09df260-1c4f-11e8-a01c-2746037b6b5f\",\"col\":7,\"row\":1},{\"size_x\":6,\"size_y\":5,\"panelIndex\":2,\"type\":\"visualization\",\"id\":\"149afb30-1c51-11e8-a01c-2746037b6b5f\",\"col\":1,\"row\":1}]",
+      "optionsJSON": "{\"darkTheme\":false}",
+      "uiStateJSON": "{}",
+      "version": 1,
+      "timeRestore": false,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"filter\":[{\"query\":{\"match_all\":{}}}],\"highlightAll\":true,\"version\":true}"
+      }
+    }
+  },
+  {
+    "_id": "71f39650-1be5-11e8-a01c-2746037b6b5f",
+    "_type": "search",
+    "_source": {
+      "title": "Taxi Demo Raw Events",
+      "description": "",
+      "hits": 0,
+      "columns": [
+        "event_type",
+        "location",
+        "trip_id"
+      ],
+      "sort": [
+        "timestamp",
+        "desc"
+      ],
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"taxidemo-rawdata\",\"highlightAll\":true,\"version\":true,\"query\":{\"match_all\":{}},\"filter\":[]}"
+      }
+    }
+  },
+  {
+    "_id": "a09df260-1c4f-11e8-a01c-2746037b6b5f",
+    "_type": "visualization",
+    "_source": {
+      "title": "Dropoff Heatmap",
+      "visState": "{\"title\":\"Dropoff Heatmap\",\"type\":\"tile_map\",\"params\":{\"mapType\":\"Heatmap\",\"isDesaturated\":true,\"addTooltip\":true,\"heatMaxZoom\":0,\"heatMinOpacity\":0.1,\"heatRadius\":\"5\",\"heatBlur\":\"1\",\"legendPosition\":\"bottomright\",\"mapZoom\":2,\"mapCenter\":[0,0],\"wms\":{\"enabled\":false,\"url\":\"https://basemap.nationalmap.gov/arcgis/services/USGSTopo/MapServer/WMSServer\",\"options\":{\"version\":\"1.3.0\",\"layers\":\"0\",\"format\":\"image/png\",\"transparent\":true,\"attribution\":\"Maps provided by USGS\",\"styles\":\"\"}}},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"geohash_grid\",\"schema\":\"segment\",\"params\":{\"field\":\"location\",\"autoPrecision\":false,\"useGeocentroid\":true,\"precision\":\"7\"}}],\"listeners\":{}}",
+      "uiStateJSON": "{\"mapCenter\":[40.72072146844198,-73.76976013183594],\"mapZoom\":10}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"taxidemo-rawdata\",\"query\":{\"match_all\":{}},\"filter\":[{\"meta\":{\"index\":\"taxidemo-rawdata\",\"negate\":false,\"disabled\":false,\"alias\":null,\"type\":\"phrase\",\"key\":\"event_type\",\"value\":\"dropoff\"},\"query\":{\"match\":{\"event_type\":{\"query\":\"dropoff\",\"type\":\"phrase\"}}},\"$state\":{\"store\":\"appState\"}}]}"
+      }
+    }
+  },
+  {
+    "_id": "149afb30-1c51-11e8-a01c-2746037b6b5f",
+    "_type": "visualization",
+    "_source": {
+      "title": "Pickup Heatmap",
+      "visState": "{\"title\":\"Pickup Heatmap\",\"type\":\"tile_map\",\"params\":{\"mapType\":\"Heatmap\",\"isDesaturated\":true,\"addTooltip\":true,\"heatMaxZoom\":0,\"heatMinOpacity\":0.1,\"heatRadius\":\"5\",\"heatBlur\":\"1\",\"legendPosition\":\"bottomright\",\"mapZoom\":2,\"mapCenter\":[0,0],\"wms\":{\"enabled\":false,\"url\":\"https://basemap.nationalmap.gov/arcgis/services/USGSTopo/MapServer/WMSServer\",\"options\":{\"version\":\"1.3.0\",\"layers\":\"0\",\"format\":\"image/png\",\"transparent\":true,\"attribution\":\"Maps provided by USGS\",\"styles\":\"\"}}},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"geohash_grid\",\"schema\":\"segment\",\"params\":{\"field\":\"location\",\"autoPrecision\":false,\"useGeocentroid\":true,\"precision\":7}}],\"listeners\":{}}",
+      "uiStateJSON": "{\"mapCenter\":[40.72072146844198,-73.76976013183594],\"mapZoom\":10}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"taxidemo-rawdata\",\"query\":{\"match_all\":{}},\"filter\":[{\"meta\":{\"index\":\"taxidemo-rawdata\",\"negate\":false,\"disabled\":false,\"alias\":null,\"type\":\"phrase\",\"key\":\"event_type\",\"value\":\"pickup\"},\"query\":{\"match\":{\"event_type\":{\"query\":\"pickup\",\"type\":\"phrase\"}}},\"$state\":{\"store\":\"appState\"}}]}"
+      }
+    }
+  },
+  {
+    "_id": "da086b70-1cea-11e8-a01c-2746037b6b5f",
+    "_type": "visualization",
+    "_source": {
+      "title": "Geo Heatmap",
+      "visState": "{\"title\":\"Geo Heatmap\",\"type\":\"tile_map\",\"params\":{\"mapType\":\"Heatmap\",\"isDesaturated\":true,\"addTooltip\":true,\"heatMaxZoom\":0,\"heatMinOpacity\":0.1,\"heatRadius\":\"5\",\"heatBlur\":\"1\",\"legendPosition\":\"bottomright\",\"mapZoom\":2,\"mapCenter\":[0,0],\"wms\":{\"enabled\":false,\"url\":\"https://basemap.nationalmap.gov/arcgis/services/USGSTopo/MapServer/WMSServer\",\"options\":{\"version\":\"1.3.0\",\"layers\":\"0\",\"format\":\"image/png\",\"transparent\":true,\"attribution\":\"Maps provided by USGS\",\"styles\":\"\"}}},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"geohash_grid\",\"schema\":\"segment\",\"params\":{\"field\":\"location\",\"autoPrecision\":false,\"useGeocentroid\":true,\"precision\":7}}],\"listeners\":{}}",
+      "uiStateJSON": "{\"mapCenter\":[40.72072146844198,-73.76976013183594],\"mapZoom\":10}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"taxidemo-rawdata\",\"query\":{\"match_all\":{}},\"filter\":[]}"
+      }
+    }
+  },
+  {
+    "_id": "bc4f2ab0-1cea-11e8-a01c-2746037b6b5f",
+    "_type": "visualization",
+    "_source": {
+      "title": "Event Counts",
+      "visState": "{\"title\":\"Event Counts\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"event_type\",\"size\":5,\"order\":\"asc\",\"orderBy\":\"_term\"}}],\"listeners\":{}}",
+      "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"taxidemo-rawdata\",\"query\":{\"match_all\":{}},\"filter\":[]}"
+      }
+    }
+  }
+]
