@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # Read JSON data and send to the REST gateway.
-# Input files must be sorted by the timestamp column.
+# Input files must be sorted by timestamp.
 #
 # Written by: claudio.fahey@dell.com
 #
@@ -14,7 +14,7 @@ from optparse import OptionParser
 import json
 import pandas as pd
 
-def playback_recorded_file_generator(filenames, period_freq):
+def playback_recorded_file_generator(filenames, period_freq, offset_minutes):
     # Look at the first lines of each file.
     # The first line of the first file will determine the starting period.
     # Then we find the first file that contains a timestamp beyond the desired playback time.
@@ -41,7 +41,8 @@ def playback_recorded_file_generator(filenames, period_freq):
                 realtime_start_timestamp = pd.Timestamp.now('UTC')
                 realtime_start_period = pd.Period(realtime_start_timestamp, period_freq)
                 delta_periods = realtime_start_period - begin_playback_period
-                original_to_realtime_delta = delta_periods * realtime_start_period.freq.delta
+                original_to_realtime_delta = (
+                    delta_periods * realtime_start_period.freq.delta + pd.Timedelta(minutes=offset_minutes))
                 print('original_to_realtime_delta=%s' % (original_to_realtime_delta))
                 original_timestamp_start_playback = pd.Timestamp.now('UTC') - original_to_realtime_delta
                 print('original_timestamp_start_playback=%s' % original_timestamp_start_playback)
@@ -106,14 +107,15 @@ def playback_recorded_file_generator(filenames, period_freq):
 def single_generator_process(filenames, options):
     url = options.gateway_url
     print('num_events=%d' % options.num_events)
-    generator = playback_recorded_file_generator(filenames, period_freq=options.period_freq)
+    generator = playback_recorded_file_generator(
+        filenames, period_freq=options.period_freq, offset_minutes=options.offset_minutes)
     num_events_sent = 0
 
     for data in generator:
         try:
             print('Generated: ' + str(data))
 
-            timestamp_ms = data['timestamp']  #.value / 1e6
+            timestamp_ms = data['timestamp']
             sleep_sec = timestamp_ms/1000.0 - time()
             if sleep_sec > 0.0:
                 print('Sleeping for %s sec' % sleep_sec)
@@ -158,6 +160,9 @@ def main():
     parser.add_option(
         '-f', '--period_freq', default='D',
         action='store', dest='period_freq', help='Align playback and historical timestamps by this period. (D=day,W=week')
+    parser.add_option(
+        '-o', '--offset_minutes', default=0, type='float',
+        action='store', dest='offset_minutes', help='original timestamp will be shifted by this additional amount of minutes')
     parser.add_option(
         '-n', '--num_events', default=0, type='int',
         action='store', dest='num_events', help='number of events to send (0=unlimited)')
