@@ -1,4 +1,4 @@
-package io.pravega.example.taxidemo.gateway;
+package io.pravega.example.iot.gateway;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,0 +1,45 @@
+#
+# This Docker Compose file will create a complete system to run this demo.
+#
+# To build from source:
+#   ./gradlew gateway:distTar flinkprocessor:distTar && docker-compose build
+#
+
+version: '2.1'
+
+services:
+
+  pravega:
+    image: pravega/pravega:0.2.1
+    ports:
+      - "9090:9090"
+      - "12345:12345"
+    command: standalone
+    environment:
+      HOST_IP: ${PRAVEGA_HOST_IP:-pravega}
+
+  gateway:
+    image: claudiofahey/taxidemo_gateway
+    build:
+      context: gateway
+    ports:
+      - "3000:3000"
+    environment:
+      PRAVEGA_CONTROLLER: tcp://${PRAVEGA_HOST_IP:-pravega}:9090
+      ROUTING_KEY_ATTRIBUTE_NAME: trip_id
+    restart: on-failure
+
+  streaming_data_generator:
+    image: claudiofahey/taxidemo_streaming_data_generator
+    build:
+      context: streaming_data_generator
+    command:
+      - ./streaming_data_generator.py
+      - --gateway-url
+      - http://gateway:3000/data
+      - --start-at-first-line
+      - --num-events
+      - "200"
+      - /data/part-00000-0afacd20-f657-4fd1-a28e-63cf3bf32ee6-c000.json
+    volumes:
+      - ./notebooks/data15.json:/data:ro

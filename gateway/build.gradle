@@ -2,11 +2,11 @@ apply plugin: "java"
 apply plugin: "maven"
 apply plugin: "application"
 
-group = "io.pravega.example.taxidemo"
+group = "io.pravega.example.iot"
 version = samplesVersion
-archivesBaseName = "taxidemo-gateway"
-description = "gateway-service"
-mainClassName = "io.pravega.example.taxidemo.gateway.Main"
+archivesBaseName = "iot-gateway"
+description = "iot-gateway"
+mainClassName = "io.pravega.example.iot.gateway.Main"
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 

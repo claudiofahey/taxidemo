@@ -14,19 +14,27 @@ from optparse import OptionParser
 import json
 import pandas as pd
 
-def playback_recorded_file_generator(filenames, period_freq, offset_minutes):
+def playback_recorded_file_generator(filenames, period_freq, offset_minutes, start_at_first_line):
     # Look at the first lines of each file.
     # The first line of the first file will determine the starting period.
     # Then we find the first file that contains a timestamp beyond the desired playback time.
     initialized = False
     start_playback_file_index = None
     previous_file_original_timestamp = None
+    playback_started = False
     for file_index, filename in enumerate(filenames):
         with open(filename, 'r') as f:
             line = f.readline()
             data = json.loads(line)
             original_timestamp = pd.to_datetime(data['timestamp'], unit='ms', utc=True)
             print('File Header: file_index=%d, original_timestamp=%s, filename=%s, ' % (file_index, original_timestamp, filename))
+
+            if start_at_first_line:
+                start_playback_file_index = file_index
+                # startup_delay = pd.Timedelta(seconds=1)
+                original_to_realtime_delta = pd.Timestamp.now('UTC') - original_timestamp
+                playback_started = True
+                break
 
             if previous_file_original_timestamp is not None:
                 if not previous_file_original_timestamp <= original_timestamp:
@@ -61,7 +69,6 @@ def playback_recorded_file_generator(filenames, period_freq, offset_minutes):
     # Open the starting file identified above, fast forward through it to the exact timestamp that matches
     # the current time, then begin playback.
     file_index = start_playback_file_index
-    playback_started = False
     skipped_lines = 0
     previous_file_original_timestamp = None
     while file_index < len(filenames):
@@ -108,11 +115,15 @@ def single_generator_process(filenames, options):
     url = options.gateway_url
     print('num_events=%d' % options.num_events)
     generator = playback_recorded_file_generator(
-        filenames, period_freq=options.period_freq, offset_minutes=options.offset_minutes)
+        filenames, period_freq=options.period_freq, offset_minutes=options.offset_minutes, start_at_first_line=options.start_at_first_line)
     num_events_sent = 0
 
     for data in generator:
         try:
+            if options.num_events > 0 and num_events_sent >= options.num_events:
+                print('Finished sending requested number of events.')
+                return
+
             print('Generated: ' + str(data))
 
             timestamp_ms = data['timestamp']
@@ -126,12 +137,10 @@ def single_generator_process(filenames, options):
 
             duplicate_messages = 1
             for i in range(duplicate_messages):
+                num_events_sent += 1
                 response = requests.post(url, json=data)
                 print('Response %s, Backlog %0.3f sec' % (str(response), backlog_sec))
                 response.raise_for_status()
-                num_events_sent += 1
-                if options.num_events > 0 and num_events_sent >= options.num_events:
-                    return
 
         except Exception as e:
             print('ERROR: ' + str(e))
@@ -158,13 +167,16 @@ def main():
         '-g', '--gateway-url', default='http://localhost:3000/data',
         action='store', dest='gateway_url', help='URL for gateway')
     parser.add_option(
-        '-f', '--period_freq', default='D',
-        action='store', dest='period_freq', help='Align playback and historical timestamps by this period. (D=day,W=week')
+        '', '--start-at-first-line', default=False,
+        action='store_true', dest='start_at_first_line', help='Do not align timestamps. Start playback at first line of first file.')
     parser.add_option(
-        '-o', '--offset_minutes', default=0, type='float',
+        '-f', '--period-freq', default='D',
+        action='store', dest='period_freq', help='Align playback and historical timestamps by this period. (D=day,W=week)')
+    parser.add_option(
+        '-o', '--offset-minutes', default=0, type='float',
         action='store', dest='offset_minutes', help='original timestamp will be shifted by this additional amount of minutes')
     parser.add_option(
-        '-n', '--num_events', default=0, type='int',
+        '-n', '--num-events', default=0, type='int',
         action='store', dest='num_events', help='number of events to send (0=unlimited)')
     parser.add_option(
         '', '--validate', default=False,

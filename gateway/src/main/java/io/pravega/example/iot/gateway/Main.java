@@ -1,4 +1,4 @@
-package io.pravega.example.taxidemo.gateway;
+package io.pravega.example.iot.gateway;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.pravega.client.ClientFactory;
@@ -26,7 +26,7 @@ class Main
      */
     private static HttpServer startServer() {
         // Create a resource config that scans for JAX-RS resources and providers.
-        final ResourceConfig rc = new ResourceConfig().packages("io.pravega.example.taxidemo.gateway");
+        final ResourceConfig rc = new ResourceConfig().packages("io.pravega.example.iot.gateway");
 
         // Create and start a new instance of grizzly http server exposing the Jersey application.
         return GrizzlyHttpServerFactory.createHttpServer(Parameters.getGatewayURI(), rc);
@@ -40,11 +40,9 @@ class Main
         String scope = Parameters.getScope();
         streamManager.createScope(scope);
         String streamName = Parameters.getStreamName();
-        int targetRateEventsPerSec = 10;
-        int scaleFactor = 2;
-        int minNumSegments = 2;
         StreamConfiguration streamConfig = StreamConfiguration.builder()
-                .scalingPolicy(ScalingPolicy.byEventRate(targetRateEventsPerSec, scaleFactor, minNumSegments))
+                .scalingPolicy(ScalingPolicy.byEventRate(
+                        Parameters.getTargetRateEventsPerSec(), Parameters.getScaleFactor(), Parameters.getMinNumSegments()))
                 .build();
         streamManager.createStream(scope, streamName, streamConfig);
 

@@ -1,4 +1,4 @@
-package io.pravega.example.taxidemo.gateway;
+package io.pravega.example.iot.gateway;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,6 +7,7 @@ import io.pravega.client.ClientFactory;
 import io.pravega.client.admin.ReaderGroupManager;
 import io.pravega.client.admin.StreamManager;
 import io.pravega.client.stream.*;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,11 +21,12 @@ public class GatewayTest {
     private static final Logger Log = LoggerFactory.getLogger(GatewayTest.class);
     private static final int READER_TIMEOUT_MS = 2000;
 
+    @Ignore()
     @Test
     public void testCreateStream() throws Exception {
-        URI controllerURI = URI.create("tcp://10.246.27.118:9091");
+        URI controllerURI = URI.create("tcp://localhost:9090");
         StreamManager streamManager = StreamManager.create(controllerURI);
-        String scope = "taxidemo3";
+        String scope = "iot3";
         streamManager.createScope(scope);
         String streamName = "raw";
         int targetKBps = 1000;
