@@ -10,9 +10,10 @@ from __future__ import division
 from __future__ import print_function
 from time import sleep, time
 import requests
-from optparse import OptionParser
+import argparse
 import json
 import pandas as pd
+import glob
 
 def playback_recorded_file_generator(filenames, period_freq, offset_minutes, start_at_first_line):
     # Look at the first lines of each file.
@@ -162,31 +163,34 @@ def validate_files(filenames):
                     previous_file_original_timestamp = original_timestamp
 
 def main():
-    parser = OptionParser()
-    parser.add_option(
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
         '-g', '--gateway-url', default='http://localhost:3000/data',
         action='store', dest='gateway_url', help='URL for gateway')
-    parser.add_option(
-        '', '--start-at-first-line', default=False,
+    parser.add_argument(
+        '--start-at-first-line', default=False,
         action='store_true', dest='start_at_first_line', help='Do not align timestamps. Start playback at first line of first file.')
-    parser.add_option(
+    parser.add_argument(
         '-f', '--period-freq', default='D',
         action='store', dest='period_freq', help='Align playback and historical timestamps by this period. (D=day,W=week)')
-    parser.add_option(
-        '-o', '--offset-minutes', default=0, type='float',
+    parser.add_argument(
+        '-o', '--offset-minutes', default=0, type=float,
         action='store', dest='offset_minutes', help='original timestamp will be shifted by this additional amount of minutes')
-    parser.add_option(
-        '-n', '--num-events', default=0, type='int',
+    parser.add_argument(
+        '-n', '--num-events', default=0, type=int,
         action='store', dest='num_events', help='number of events to send (0=unlimited)')
-    parser.add_option(
-        '', '--validate', default=False,
+    parser.add_argument(
+        '--validate', default=False,
         action='store_true', dest='validate', help='validate files')
-    options, args = parser.parse_args()
+    options, unparsed = parser.parse_known_args()
+
+    filenames = unparsed
+    filenames = sorted([p for s in filenames for p in glob.glob(s)])
 
     if options.validate:
-        validate_files(args)
+        validate_files(filenames)
     else:
-        single_generator_process(args, options)
+        single_generator_process(filenames, options)
 
 if __name__ == '__main__':
     main()

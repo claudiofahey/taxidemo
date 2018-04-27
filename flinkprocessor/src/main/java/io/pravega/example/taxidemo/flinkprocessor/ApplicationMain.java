@@ -22,6 +22,11 @@ public class ApplicationMain {
                 job.run();
                 break;
             }
+            case AppConfiguration.RUN_MODE_EXTRACT_STATISTICS: {
+                ExtractStatisticsJob job = new ExtractStatisticsJob(appConfiguration);
+                job.run();
+                break;
+            }
             default: {
                 printUsage();
                 throw new IllegalArgumentException("invalid runMode");

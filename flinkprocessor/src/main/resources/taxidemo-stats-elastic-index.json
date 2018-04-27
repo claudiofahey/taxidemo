@@ -1,0 +1,14 @@
+{
+  "mappings": {
+    "@@type@@": {
+      "properties": {
+        "timestamp": {
+          "type": "date"
+        },
+        "tip_percent": {
+          "type": "float"
+        }
+      }
+    }
+  }
+}

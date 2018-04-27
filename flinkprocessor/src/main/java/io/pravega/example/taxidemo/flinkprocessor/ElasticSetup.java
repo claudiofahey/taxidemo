@@ -40,7 +40,7 @@ public class ElasticSetup {
 
         boolean deleteIndex = true;
         if (deleteIndex) {
-            LOG.info("Deleting old elastic search index");
+            LOG.info("Deleting old Elasticsearch index");
             try {
                 client.admin().indices().delete(Requests.deleteIndexRequest(elasticConfig.getIndex())).actionGet();
             } catch (IndexNotFoundException e) {
@@ -48,8 +48,9 @@ public class ElasticSetup {
             }
         }
 
-        LOG.info("Creating elastic Search Index");
-        String indexBody = getTemplate("taxidemo-rawdata-elastic-index.json", Collections.singletonMap("type", elasticConfig.getType()));
+        LOG.info("Creating Elasticsearch Index");
+        String fileName = String.format("%s-elastic-index.json", elasticConfig.getIndex());
+        String indexBody = getTemplate(fileName, Collections.singletonMap("type", elasticConfig.getType()));
         try {
             client.admin().indices().create(Requests.createIndexRequest(elasticConfig.getIndex()).source(indexBody)).actionGet();
         } catch (ResourceAlreadyExistsException e) {

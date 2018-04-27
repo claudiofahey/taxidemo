@@ -2,7 +2,8 @@
 # This Docker Compose file will create a complete system to run this demo.
 #
 # To build from source:
-#   ./gradlew gateway:distTar flinkprocessor:distTar && docker-compose build
+#   export PRAVEGA_HOST_IP=your_host_ip
+#   ./gradlew gateway:distTar && docker-compose build && docker-compose up -d
 #
 
 version: '2.1'
@@ -38,8 +39,6 @@ services:
       - --gateway-url
       - http://gateway:3000/data
       - --start-at-first-line
-      - --num-events
-      - "200"
-      - /data/part-00000-0afacd20-f657-4fd1-a28e-63cf3bf32ee6-c000.json
+      - /data/*.json
     volumes:
-      - ./notebooks/data15.json:/data:ro
+      - ./notebooks/data.json:/data:ro

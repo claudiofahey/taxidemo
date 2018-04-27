@@ -18,6 +18,7 @@ public class AppConfiguration {
     private boolean enableRebalance;
 
     public static final String RUN_MODE_RAW_DATA_TO_ELASTICSEARCH = "rawdata-to-elasticsearch";
+    public static final String RUN_MODE_EXTRACT_STATISTICS = "extract-statistics";
 
     public PravegaArgs getPravegaArgs() {
         return pravegaArgs;
