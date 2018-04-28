@@ -93,6 +93,7 @@ public class AppConfiguration {
 
     public static class ElasticSearch implements Serializable {
         private boolean sinkResults;
+        private boolean deleteIndex;
         private String host;
         private int port;
         private String cluster;
@@ -145,6 +146,14 @@ public class AppConfiguration {
 
         public void setType(String type) {
             this.type = type;
+        }
+
+        public boolean isDeleteIndex() {
+            return deleteIndex;
+        }
+
+        public void setDeleteIndex(boolean deleteIndex) {
+            this.deleteIndex = deleteIndex;
         }
     }
 

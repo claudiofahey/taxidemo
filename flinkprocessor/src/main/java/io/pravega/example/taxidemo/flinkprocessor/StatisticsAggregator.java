@@ -48,13 +48,14 @@ public class StatisticsAggregator {
             return acc;
         }
 
-        // getResult is called whenever the window is triggered.
-        // It returns the delta tip_amount and total_amount since the last call.
+        // Calculate tip percent from accumulated tip amount and total amount.
         @Override
         public Result getResult(Accumulator acc) {
             Result result = new Result();
             result.timestamp = acc.timestamp;
-            result.tip_percent = 100.0 * acc.tip_amount / acc.total_amount;
+//            result.tip_percent = 50.0 * acc.tip_amount / (acc.total_amount - acc.tip_amount);     // incorrect - exaggerated
+//            result.tip_percent = 100.0 * acc.tip_amount / acc.total_amount;                       // incorrect - realistic
+            result.tip_percent = 100.0 * acc.tip_amount / (acc.total_amount - acc.tip_amount);      // correct
             return result;
         }
 

@@ -2,7 +2,7 @@
 # This Docker Compose file will create a complete system to run this demo.
 #
 # To build from source:
-#   export PRAVEGA_HOST_IP=your_host_ip
+#   export PRAVEGA_HOST_ADDRESS=your_host_ip
 #   ./gradlew gateway:distTar && docker-compose build && docker-compose up -d
 #
 
@@ -13,11 +13,11 @@ services:
   pravega:
     image: pravega/pravega:0.2.1
     ports:
-      - "9090:9090"
+      - "9091:9090"
       - "12345:12345"
     command: standalone
     environment:
-      HOST_IP: ${PRAVEGA_HOST_IP:-pravega}
+      HOST_IP: ${PRAVEGA_HOST_ADDRESS:-pravega}
 
   gateway:
     image: claudiofahey/taxidemo_gateway
@@ -26,8 +26,11 @@ services:
     ports:
       - "3000:3000"
     environment:
-      PRAVEGA_CONTROLLER: tcp://${PRAVEGA_HOST_IP:-pravega}:9090
-      ROUTING_KEY_ATTRIBUTE_NAME: trip_id
+      PRAVEGA_CONTROLLER: tcp://${PRAVEGA_HOST_ADDRESS:-pravega}:${PRAVEGA_PORT:-9091}
+      PRAVEGA_MIN_NUM_SEGMENTS: "2"
+      PRAVEGA_SCOPE: "iot3"
+      PRAVEGA_TARGET_RATE_EVENTS_PER_SEC: "50"
+      ROUTING_KEY_ATTRIBUTE_NAME: "trip_id"
     restart: on-failure
 
   streaming_data_generator:
@@ -38,7 +41,9 @@ services:
       - ./streaming_data_generator.py
       - --gateway-url
       - http://gateway:3000/data
-      - --start-at-first-line
+#      - --start-at-first-line
+      - --fast-forward-from-minutes-ago
+      - "720"
       - /data/*.json
     volumes:
       - ./notebooks/data.json:/data:ro

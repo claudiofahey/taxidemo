@@ -61,6 +61,8 @@ public class ApplicationMain {
         // elastic-sink: Whether to sink the results to Elastic Search or not.
         elasticSearch.setSinkResults(params.getBoolean("elastic-sink", false));
 
+        elasticSearch.setDeleteIndex(params.getBoolean("elastic-delete-index", false));
+
         // elastic-host: Host of the Elastic instance to sink to.
         elasticSearch.setHost(params.get("elastic-host", "master.elastic.l4lb.thisdcos.directory"));
 

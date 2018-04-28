@@ -38,8 +38,7 @@ public class ElasticSetup {
         TransportClient client = new PreBuiltTransportClient(settings);
         client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
 
-        boolean deleteIndex = true;
-        if (deleteIndex) {
+        if (elasticConfig.isDeleteIndex()) {
             LOG.info("Deleting old Elasticsearch index");
             try {
                 client.admin().indices().delete(Requests.deleteIndexRequest(elasticConfig.getIndex())).actionGet();

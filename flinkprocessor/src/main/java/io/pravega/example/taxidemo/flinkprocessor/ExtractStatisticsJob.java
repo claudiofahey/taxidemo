@@ -8,6 +8,8 @@ import io.pravega.connectors.flink.util.StreamId;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.RuntimeContext;
+import org.apache.flink.runtime.state.filesystem.FsStateBackend;
+import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -68,6 +70,12 @@ public class ExtractStatisticsJob extends AbstractJob {
             env.enableCheckpointing(checkpointInterval, CheckpointingMode.EXACTLY_ONCE);
         }
         log.info("Parallelism={}, MaxParallelism={}", env.getParallelism(), env.getMaxParallelism());
+
+        // We can't use MemoryStateBackend because it can't store our large state.
+        if (env.getStateBackend() == null || env.getStateBackend() instanceof MemoryStateBackend) {
+            log.warn("Using FsStateBackend");
+            env.setStateBackend(new FsStateBackend("file:///tmp/flink-state", true));
+        }
 
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
