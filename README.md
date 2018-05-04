@@ -28,16 +28,16 @@ and visualization on streaming Internet-Of-Things (IOT) data.
 - Flink: Apache Flink® is an open-source stream processing framework for distributed, high-performing, always-available, and accurate data streaming applications.
   See <https://flink.apache.org> for more information.
   
-- Data Preparation: The [notebooks](preprocess_data) directory contains a Jupyter notebook used to prepare the data that
+- Data Preparation: The [preprocess_data](preprocess_data) directory contains a Python script used to prepare the data that
   the Streaming Data Generator will use.
   This reads the NYC Yellow Taxi trip data and produces a set of JSON files containing events based on the trips.
   Events are written in time order.
 
 - Streaming Data Generator: A streaming data generator has been
-  created that can playback data and send it to the RESTful gateway.
+  created that can playback data and send it to the REST gateway.
   This is a Python script and is in the [streaming_data_generator](streaming_data_generator) directory.
   
-- Gateway: This is a RESTful web service that receives JSON documents from the Streaming Data Generator.
+- Gateway: This is a REST web service that receives JSON documents from the Streaming Data Generator.
   It parses the JSON, adds the remote IP address, and then writes it to a Pravega stream.
   This is a Java application and is in the [gateway](gateway) directory.
 
@@ -55,25 +55,7 @@ and visualization on streaming Internet-Of-Things (IOT) data.
   components on Linux and/or Windows servers, desktops, or even laptops.
   For more information, see <https://en.wikipedia.org/wiki/Docker_(software)>.
 
-
-## Building and Running the Demo
-
-### Install Operating System
-
-Install Ubuntu 16.04 LTS. Other operating systems can also be used but the commands below have only been tested
-on this version.
-
-### Install Java
-
-```
-apt-get install default-jdk
-```
-
-### Install IntelliJ
-
-Install from <https://www.jetbrains.com/idea>.
-Enable the Lombok plugin. 
-Enable Annotations (settings -> build, execution, deployment, -> compiler -> annotation processors). 
+## Running the Demo
 
 ### Install Docker and Docker Compose
 
@@ -89,7 +71,7 @@ and <https://docs.docker.com/compose/install/>.
 
 - Import Kibana objects from `taxidemo-kibana-export.json`.
 
-### Data Preparation
+### Prepare Data
 
 The following steps will download the NYC Yellow Taxi data and preprocess it so it can
 be used by the Streaming Data Generator.
@@ -149,10 +131,22 @@ to interactively preprocess the data. This allows you to customize the events.
   In standalone mode, a mini Flink cluster will execute within the application process.
   When run in the IntelliJ IDE, standalone mode will be used by default.
 
+- Run the Raw Data job by using the following parameters:
+```
+--runMode rawdata-to-elasticsearch 
+--controller tcp://$PRAVEGA_HOST_ADDRESS:9090 
+--input.stream iot/data 
+--elastic-sink true 
+--elastic-host $ELASTIC_HOST 
+--elastic-index taxidemo-rawdata 
+--elastic-type event 
+--elastic-delete-index true
+```
+
 - Run the Extract Statistics job with the following parameters:
 ```
 --runMode extract-statistics
---controller tcp://$PRAVEGA_HOST_ADDRESS:9091 
+--controller tcp://$PRAVEGA_HOST_ADDRESS:9090 
 --input.stream iot/data 
 --elastic-sink true 
 --elastic-host $ELASTIC_HOST 
@@ -161,17 +155,24 @@ to interactively preprocess the data. This allows you to customize the events.
 --elastic-delete-index false
 ```
 
-- Run the Raw Data job by using the following parameters:
+## Building the Demo
+
+### Install Operating System
+
+Install Ubuntu 16.04 LTS. Other operating systems can also be used but the commands below have only been tested
+on this version.
+
+### Install Java
+
 ```
---runMode rawdata-to-elasticsearch 
---controller tcp://$PRAVEGA_HOST_ADDRESS:9091 
---input.stream iot/data 
---elastic-sink true 
---elastic-host $ELASTIC_HOST 
---elastic-index taxidemo-rawdata 
---elastic-type event 
---elastic-delete-index true
+apt-get install default-jdk
 ```
+
+### Install IntelliJ
+
+Install from <https://www.jetbrains.com/idea>.
+Enable the Lombok plugin. 
+Enable Annotations (settings -> build, execution, deployment, -> compiler -> annotation processors). 
 
 # References
 

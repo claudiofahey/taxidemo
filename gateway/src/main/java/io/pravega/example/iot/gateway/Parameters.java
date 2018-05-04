@@ -2,7 +2,7 @@ package io.pravega.example.iot.gateway;
 
 import java.net.URI;
 
-// All parameters will come from environment variables. This makes it particular easy
+// All parameters will come from environment variables. This makes it easy
 // to configure on Docker, Mesos, Kubernetes, etc.
 class Parameters {
     // By default, we will connect to a standalone Pravega running on localhost.
