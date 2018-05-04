@@ -28,7 +28,7 @@ and visualization on streaming Internet-Of-Things (IOT) data.
 - Flink: Apache Flink® is an open-source stream processing framework for distributed, high-performing, always-available, and accurate data streaming applications.
   See <https://flink.apache.org> for more information.
   
-- Data Preparation: The [notebooks](notebooks) directory contains a Jupyter notebook used to prepare the data that
+- Data Preparation: The [notebooks](preprocess_data) directory contains a Jupyter notebook used to prepare the data that
   the Streaming Data Generator will use.
   This reads the NYC Yellow Taxi trip data and produces a set of JSON files containing events based on the trips.
   Events are written in time order.
@@ -91,12 +91,34 @@ and <https://docs.docker.com/compose/install/>.
 
 ### Data Preparation
 
-- `cd notebooks`
+The following steps will download the NYC Yellow Taxi data and preprocess it so it can
+be used by the Streaming Data Generator.
+
+- `mkdir data`
 
 - Visit <http://www.nyc.gov/html/tlc/html/about/trip_record_data.shtml> and download the
   March 2015 Yellow Taxi trip data.
-  ```wget https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2015-03.csv```
-  
+  ```wget -O data/yellow_tripdata_2015-03.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2015-03.csv```
+
+- Build the Docker container.
+```
+docker build -t taxidemo_preprocess_data preprocess_data 
+```
+
+- Execute the preprocess job.
+```
+docker run --rm -v ${PWD}/data:/data taxidemo_preprocess_data \
+spark-submit --master local[8] preprocess_data.py \
+--input /data/yellow_tripdata_2015-03.csv --output /data/data.json
+```
+
+### Launch Jupyter Notebook (optional)
+
+This is an optional step. It will start open Jupyter notebook that can be used
+to interactively preprocess the data. This allows you to customize the events. 
+ 
+- `cd preprocess_data`
+
 - Launch the Jupyter environment in Docker.
   ```docker-compose up -d```
   
@@ -108,7 +130,7 @@ and <https://docs.docker.com/compose/install/>.
 - Execute all cell by clicking Cells -> Run All.
   This may take several minutes to run.
   It will write several files within a directory named data.json.
-  These files will be used by the Streaming Data Generator.
+  These files can be used by the Streaming Data Generator.
 
 ### Run Applications
 

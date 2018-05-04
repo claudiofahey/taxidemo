@@ -2,11 +2,6 @@
 .ipynb_checkpoints/
 .project
 .gradle
-notebooks/*.json
-spark-warehouse/
-*.csv
+data/
 *.iml
-*.ndjson
-*.log
-out
 

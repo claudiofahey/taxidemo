@@ -46,6 +46,7 @@ RUN curl -sL --retry 3 --insecure \
   && rm -rf $JAVA_HOME/man
 
 COPY *.ipynb /notebooks/original/
+COPY *.py /
 
 EXPOSE 8888
 
