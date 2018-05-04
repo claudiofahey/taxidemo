@@ -80,13 +80,14 @@ Enable Annotations (settings -> build, execution, deployment, -> compiler -> ann
 See <https://docs.docker.com/install/linux/docker-ce/ubuntu/>
 and <https://docs.docker.com/compose/install/>.
 
-### Elasticsearch and Kibana
+### Install Elasticsearch and Kibana
 
 - `cd docker-elk ; docker-compose up -d`
 
-- Open Kibana.
+- Open Kibana. 
+  <http://localhost:5601/>
 
-- Import Kibana objects from `docker-elk/kibana-export.json`.
+- Import Kibana objects from `taxidemo-kibana-export.json`.
 
 ### Data Preparation
 
@@ -94,10 +95,10 @@ and <https://docs.docker.com/compose/install/>.
 
 - Visit <http://www.nyc.gov/html/tlc/html/about/trip_record_data.shtml> and download the
   March 2015 Yellow Taxi trip data.
-  `wget https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2015-03.csv`
+  ```wget https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2015-03.csv```
   
 - Launch the Jupyter environment in Docker.
-  `docker-compose up -d`
+  ```docker-compose up -d```
   
 - Open your browser to Jupyter.
   <http://localhost:8888/notebooks/work/preprocess_data.ipynb>
@@ -112,13 +113,13 @@ and <https://docs.docker.com/compose/install/>.
 ### Run Applications
 
 - Build the Gateway.
-  `./gradlew gateway:distTar`
+  ```./gradlew gateway:distTar```
 
 - Build Docker containers.
-  `docker-compose build`
+  ```docker-compose build```
 
 - Start Pravega, Gateway, and Streaming Data Generator.
-  `docker-compose up -d`
+  ```docker-compose up -d```
 
 ### Run Flink Jobs
 
@@ -150,8 +151,6 @@ and <https://docs.docker.com/compose/install/>.
 --elastic-delete-index true
 ```
 
-
-
 # References
 
 - <http://pravega.io/>
@@ -160,3 +159,4 @@ and <https://docs.docker.com/compose/install/>.
 - <https://cwiki.apache.org/confluence/display/FLINK/Streams+and+Operations+on+Streams>
 - <https://jersey.java.net/documentation/latest/getting-started.html>
 - <http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/griz_jersey_intro/Grizzly-Jersey-Intro.html>
+- <https://github.com/deviantony/docker-elk>
